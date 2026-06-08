@@ -1,224 +1,52 @@
-<div align="center">
-
-<br />
-
-<img src="https://img.shields.io/badge/Payvo-Bill%20Manager-00C2D1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIxNCIgeD0iMiIgeT0iNSIgcng9IjIiLz48bGluZSB4MT0iMiIgeDI9IjIyIiB5MT0iMTAiIHkyPSIxMCIvPjwvc3ZnPg==&logoColor=white" alt="Payvo" height="40" />
-
 # Payvo
 
-**The cleanest way to track your bills.**
+A simple bill tracking app for people who want to know what they owe before the month hits.
 
-A mobile-first, Swedish-language bill management web app — built for people who want to ditch the spreadsheets and actually know what they owe each month.
-
-<br />
-
-[![React](https://img.shields.io/badge/React_19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript_6-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite_8-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vite.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)](https://www.framer.com/motion)
-
-<br />
-
-</div>
+Built with React, TypeScript, Vite, Tailwind CSS, and Supabase.
 
 ---
 
-## ✨ What is Payvo?
+## What it does
 
-Payvo is a **private, user-owned bill tracker** for individuals who juggle multiple monthly invoices — rent, broadband, subscriptions, electricity, buy-now-pay-later services, and more.
+Payvo lets you add your monthly bills manually, see the total at a glance, and mark them as paid one by one. No bank connections, no automatic syncing — just a clean overview of your finances.
 
-No bank connections. No external syncing. Just a clean, fast, beautiful interface where you add your bills manually, mark them as paid, and always know where you stand.
-
-> Built as a **mobile-first progressive web app** with a phone-frame preview on desktop.
-
----
-
-## 📱 Features
-
-### Core
-| Feature | Description |
-|---|---|
-| 🔐 **Authentication** | Register, log in, and reset password — data isolated per user via Supabase RLS |
-| 📅 **Month Navigation** | Browse past and future months with ← → controls |
-| 💳 **Fixed Bills** | Add recurring bills (e.g. rent, broadband) — auto-instantiated each month |
-| 📝 **Variable Bills** | One-off invoices with an exact due date (e.g. Klarna, one-time fees) |
-| ✅ **Mark as Paid** | Toggle payment status per bill — full confetti 🎉 when the month is cleared |
-| 📊 **Budget Summary** | Glassmorphism card showing total, remaining, and paid amounts + progress bar |
-| 🗂️ **12 Categories** | Housing, Car, Phone, Electricity, WiFi, Shopping, Health, Subscription, Food, Gym, Bank, Other |
-| ✏️ **Edit & Delete** | Modify any bill from a smooth bottom-sheet action modal |
-
-### Premium (19 kr/month)
-| Feature | Description |
-|---|---|
-| 🔓 **Unlimited Bills** | Free plan capped at 5; Premium is unlimited |
-| 📜 **Month History** | View and browse past months (locked for free users) |
-| 🔔 **Email Reminders** | Configurable notification lead time (1, 3, or 7 days before due date) |
-
-### UX Polish
-- Glassmorphism cards with `backdrop-filter: blur`
-- Smooth page transitions via **Framer Motion**
-- Simulated phone status bar + notch in desktop preview mode
-- Inline edit drawers — no full-page navigation for simple edits
-- Mock **Stripe payment modal** for the Premium upgrade flow
-- **canvas-confetti** celebration when all monthly bills are paid
+- Add fixed bills that repeat every month
+- Add one-time bills when they come in
+- See how much you have left to pay this month
+- Get email reminders before due dates
+- Browse previous months in read-only mode
 
 ---
 
-## 🗂️ Project Structure
+## Tech stack
 
-```
-src/
-├── components/
-│   └── PhoneContainer.tsx     # Desktop phone frame + fullscreen toggle
-├── db/
-│   ├── dbClient.ts            # Dual-adapter: localStorage ↔ Supabase
-│   └── supabaseSchema.sql     # Postgres schema + RLS policies
-├── utils/
-│   └── categories.ts          # 12 bill categories with icons & colors
-├── views/
-│   ├── LoginView.tsx
-│   ├── RegisterView.tsx
-│   ├── ForgotView.tsx
-│   ├── DashboardView.tsx      # Main bill list + budget card
-│   ├── AddBillView.tsx        # Create & edit bills
-│   └── SettingsView.tsx       # Profile, subscription, notifications
-├── App.tsx                    # Root router + auth session check
-└── index.css                  # Tailwind v4 theme + glassmorphism utilities
-```
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS
+- Supabase (auth + database)
+- Framer Motion
+- Vercel (hosting)
 
 ---
 
-## 🎨 Color Palette
-
-| Name | Hex | Usage |
-|------|-----|-------|
-| **Deep Navy** | `#0D1B2A` | Primary text, backgrounds, buttons |
-| **Electric Teal** | `#00C2D1` | Brand accent, CTAs, paid status, progress |
-| **Ice White** | `#F4F7FB` | App background, input fields |
-| **Overdue Red** | `#FF4D6D` | Overdue bills, error states |
-| **Warning Amber** | `#FFB347` | Bills due soon (≤ 3 days), premium lock icons |
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Library / Tool | Version |
-|-------|----------------|---------|
-| UI Framework | React | 19 |
-| Language | TypeScript | ~6.0 |
-| Build Tool | Vite | 8 |
-| Styling | Tailwind CSS | v4 |
-| Animations | Framer Motion | 12 |
-| Icons | Lucide React | 1.17 |
-| Confetti | canvas-confetti | 1.9 |
-| Backend (optional) | Supabase | 2.107 |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Node.js** v18 or later
-- **npm** v9 or later
-
-### 1. Clone the repository
+## Getting started
 
 ```bash
 git clone https://github.com/kingabdull02/payvo-app.git
 cd payvo-app
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
-```
-
-### 3. Start the development server
-
-```bash
 npm run dev
 ```
 
-Open **http://localhost:5173** in your browser. The app runs in **offline/demo mode** using `localStorage` — no backend required.
+Create a `.env` file in the root with your Supabase credentials:
 
-> **Demo credentials:** Enter any email and password on the login screen. The app auto-creates a mock user with sample bills for the current month.
-
----
-
-## ☁️ Connect to Supabase (Optional)
-
-To enable real authentication and cloud sync:
-
-**1. Create a Supabase project** at [supabase.com](https://supabase.com)
-
-**2. Run the schema** in your Supabase SQL Editor:
-
-```sql
--- Copy & paste the contents of src/db/supabaseSchema.sql
 ```
-
-**3. Create a `.env.local` file** in the project root:
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-**4. Restart the dev server** — Payvo will automatically detect and use Supabase.
-
----
-
-## 📦 Build for Production
-
-```bash
-npm run build
-```
-
-Output is generated in `dist/`. The production bundle is ~122 kB gzipped.
-
-```bash
-npm run preview   # Preview the production build locally
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ---
 
-## 🗄️ Database Schema
+## Status
 
-The Supabase schema (`src/db/supabaseSchema.sql`) creates three tables:
-
-```
-profiles          → User settings, premium status, notification preferences
-recurring_invoices → Fixed bill templates (name, amount, due day of month)
-invoices          → Monthly instances + one-off variable bills
-```
-
-Row Level Security (RLS) is enabled on all tables — users can only access their own data.
-
----
-
-## 🔮 Roadmap (Post-MVP)
-
-- [ ] Dark mode
-- [ ] Multi-currency support (EUR, USD)
-- [ ] Real Stripe subscription integration
-- [ ] Push notifications via Supabase Edge Functions
-- [ ] CSV export of bill history
-- [ ] Capacitor packaging for iOS / Android
-
----
-
-## 📄 License
-
-MIT © [kingabdull02](https://github.com/kingabdull02)
-
----
-
-<div align="center">
-
-Built with ☕ and a deep hatred of missed payment deadlines.
-
-</div>
+MVP in development. Supabase integration coming soon.
