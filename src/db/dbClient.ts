@@ -294,7 +294,7 @@ export const dbAPI = {
           reminder_days: 3,
           email_notifications: true,
           is_premium: false,
-          avatar_url: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150` // Placeholder female avatar
+          avatar_url: ``
         });
         setLS(LS_KEYS.PROFILES, profiles);
 
