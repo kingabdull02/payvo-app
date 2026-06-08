@@ -100,12 +100,12 @@ const seedMockData = (userId: string) => {
   if (!profiles.some(p => p.id === userId)) {
     profiles.push({
       id: userId,
-      name: 'Anna Andersson',
-      email: 'anna.andersson@exempel.se',
+      name: 'Användare',
+      email: '',
       reminder_days: 3,
       email_notifications: true,
       is_premium: false, // Start as free so they can upgrade!
-      avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150',
+      avatar_url: '',
     });
     setLS(LS_KEYS.PROFILES, profiles);
   }
@@ -284,7 +284,7 @@ export const dbAPI = {
         const userId = 'user-' + Math.random().toString(36).substr(2, 9);
         const user: User = { id: userId, email };
         setLS(LS_KEYS.USER, user);
-        
+
         // Add to profiles
         const profiles = getLS<Profile[]>(LS_KEYS.PROFILES, []);
         profiles.push({
@@ -344,7 +344,7 @@ export const dbAPI = {
         const profiles = getLS<Profile[]>(LS_KEYS.PROFILES, []);
         const index = profiles.findIndex(p => p.id === userId);
         if (index === -1) return null;
-        
+
         profiles[index] = { ...profiles[index], ...updates };
         setLS(LS_KEYS.PROFILES, profiles);
         return profiles[index];
@@ -416,7 +416,7 @@ export const dbAPI = {
 
         // First, fetch recurring configurations
         const { data: recConfigs } = await supabase.from('recurring_invoices').select('*').eq('user_id', userId);
-        
+
         // Fetch current invoice entries
         const { data: currentInvoices, error } = await supabase
           .from('invoices')
@@ -461,7 +461,7 @@ export const dbAPI = {
         // Localstorage logic
         const recurring = getLS<RecurringInvoice[]>(LS_KEYS.RECURRING, []).filter(r => r.user_id === userId);
         const invoices = getLS<Invoice[]>(LS_KEYS.INVOICES, []);
-        
+
         // Filter invoices belonging to user in target month
         let userMonthInvoices = invoices.filter(i => {
           return i.user_id === userId && i.due_date.startsWith(month);
