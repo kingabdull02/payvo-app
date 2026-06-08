@@ -1,6 +1,6 @@
 # Payvo
 
-A simple budget bill tracking app for people who want to know what they owe before the month hits.
+A simple budget and bill tracking app for people who want to know what they owe before the month hits.
 
 Built with React, TypeScript, Vite, Tailwind CSS, and Supabase.
 
