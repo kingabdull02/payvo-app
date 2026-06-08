@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus, 
-  Settings, 
-  History, 
-  Lock, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Settings,
+  History,
+  Lock,
   Sparkles,
   Calendar,
-  Check, 
-  Trash2, 
-  Edit3, 
+  Check,
+  Trash2,
+  Edit3,
   AlertCircle
 } from 'lucide-react';
 import { dbAPI } from '../db/dbClient';
@@ -29,22 +29,22 @@ const MONTHS_SWEDISH = [
   'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'
 ];
 
-export const DashboardView: React.FC<DashboardViewProps> = ({ 
-  userId, 
-  onNavigate, 
-  onSelectEditInvoice 
+export const DashboardView: React.FC<DashboardViewProps> = ({
+  userId,
+  onNavigate,
+  onSelectEditInvoice
 }) => {
   // Use actual current date
   const today = new Date();
   const CURRENT_YEAR = today.getFullYear();
   const CURRENT_MONTH = today.getMonth() + 1; // 1-indexed
-  
+
   const [currentYear, setCurrentYear] = useState(CURRENT_YEAR);
   const [currentMonth, setCurrentMonth] = useState(CURRENT_MONTH); // 1-indexed (1-12)
   const [profile, setProfile] = useState<Profile | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Modals state
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -77,7 +77,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   useEffect(() => {
     loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, currentMonth, currentYear, isCurrentMonth]);
 
   // Navigate months
@@ -108,7 +108,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Relative Swedish date label
   const getDueLabel = (invoice: Invoice) => {
     if (invoice.is_paid) {
-      const [,, dayStr] = invoice.due_date.split('-');
+      const [, , dayStr] = invoice.due_date.split('-');
       const day = parseInt(dayStr, 10);
       const swedishMonth = MONTHS_SWEDISH[currentMonth - 1].toLowerCase().substring(0, 3);
       return `Betald: ${day} ${swedishMonth}`;
@@ -117,7 +117,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     const todayDate = new Date();
     todayDate.setHours(0, 0, 0, 0);
     const dueDate = new Date(invoice.due_date + 'T00:00:00');
-    
+
     // Difference in days
     const diffTime = dueDate.getTime() - todayDate.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -126,8 +126,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     if (diffDays === 1) return 'Förfaller: Imorgon';
     if (diffDays === -1) return 'Förfallen: Igår';
     if (diffDays < 0) return `Förfallen: ${Math.abs(diffDays)} dagar sedan`;
-    
-    const [,, dayStr] = invoice.due_date.split('-');
+
+    const [, , dayStr] = invoice.due_date.split('-');
     const day = parseInt(dayStr, 10);
     const swedishMonth = MONTHS_SWEDISH[currentMonth - 1].toLowerCase().substring(0, 3);
     return `Förfaller: ${day} ${swedishMonth}`;
@@ -136,10 +136,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Status badge style helper
   const getInvoiceStatus = (invoice: Invoice): { label: string; textClass: string; bgClass: string } => {
     if (invoice.is_paid) {
-      return { 
-        label: 'Betald', 
-        textClass: 'text-electricTeal font-bold', 
-        bgClass: 'bg-electricTeal/10 text-electricTeal' 
+      return {
+        label: 'Betald',
+        textClass: 'text-electricTeal font-bold',
+        bgClass: 'bg-electricTeal/10 text-electricTeal'
       };
     }
 
@@ -150,25 +150,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
-      return { 
-        label: 'Förfallen', 
-        textClass: 'text-overdueRed font-bold', 
-        bgClass: 'bg-overdueRed/10 text-overdueRed' 
+      return {
+        label: 'Förfallen',
+        textClass: 'text-overdueRed font-bold',
+        bgClass: 'bg-overdueRed/10 text-overdueRed'
       };
     }
 
     if (diffDays <= 3) {
-      return { 
-        label: 'Förfaller snart', 
-        textClass: 'text-warningAmber font-bold', 
-        bgClass: 'bg-warningAmber/10 text-warningAmber' 
+      return {
+        label: 'Förfaller snart',
+        textClass: 'text-warningAmber font-bold',
+        bgClass: 'bg-warningAmber/10 text-warningAmber'
       };
     }
 
-    return { 
-      label: 'Obetald', 
-      textClass: 'text-deepNavy/60 font-bold', 
-      bgClass: 'bg-deepNavy/5 text-deepNavy/60' 
+    return {
+      label: 'Obetald',
+      textClass: 'text-deepNavy/60 font-bold',
+      bgClass: 'bg-deepNavy/5 text-deepNavy/60'
     };
   };
 
@@ -249,8 +249,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Top Header */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img 
-              src={profile?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150'} 
+            <img
+              src={profile?.avatar_url || ''}
               alt="Profil"
               className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm cursor-pointer"
               onClick={() => onNavigate('settings')}
@@ -260,7 +260,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <h2 className="text-sm font-extrabold text-deepNavy -mt-0.5">{profile?.name || 'Laddar...'}</h2>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => onNavigate('settings')}
             className="w-10 h-10 bg-white border border-deepNavy/5 rounded-full flex items-center justify-center text-deepNavy/70 shadow-sm active:scale-95 transition-transform"
           >
@@ -270,7 +270,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* Month Navigation */}
         <div className="flex justify-between items-center py-1">
-          <button 
+          <button
             onClick={handlePrevMonth}
             className="w-8 h-8 flex items-center justify-center text-deepNavy hover:bg-white border border-transparent hover:border-deepNavy/5 rounded-full transition-all"
           >
@@ -279,7 +279,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <span className="text-sm font-extrabold text-deepNavy tracking-tight select-none">
             {MONTHS_SWEDISH[currentMonth - 1]} {currentYear}
           </span>
-          <button 
+          <button
             onClick={handleNextMonth}
             className="w-8 h-8 flex items-center justify-center text-deepNavy hover:bg-white border border-transparent hover:border-deepNavy/5 rounded-full transition-all"
           >
@@ -334,7 +334,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Progress Bar */}
               <div className="mt-5 space-y-1.5">
                 <div className="w-full bg-deepNavy/5 h-2.5 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="bg-electricTeal h-full rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${percentCompleted}%` }}
                   ></div>
@@ -376,13 +376,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div
                         key={inv.id}
                         onClick={() => setSelectedInvoice(inv)}
-                        className={`bg-white hover:bg-iceWhite/50 active:bg-iceWhite border border-deepNavy/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer transition-all duration-150 transform hover:-translate-y-0.5 ${
-                          inv.is_paid ? 'opacity-85' : ''
-                        }`}
+                        className={`bg-white hover:bg-iceWhite/50 active:bg-iceWhite border border-deepNavy/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer transition-all duration-150 transform hover:-translate-y-0.5 ${inv.is_paid ? 'opacity-85' : ''
+                          }`}
                       >
                         <div className="flex items-center gap-3">
                           {/* Colored category Icon */}
-                          <div 
+                          <div
                             className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
                             style={{ backgroundColor: categoryInfo.color }}
                           >
@@ -467,7 +466,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </span>
                 <h3 className="text-lg font-black text-deepNavy mt-1">{selectedInvoice.name}</h3>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedInvoice(null)}
                 className="w-8 h-8 rounded-full bg-iceWhite flex items-center justify-center text-deepNavy/50"
               >
@@ -506,11 +505,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {!isHistoryMonth && (
                 <button
                   onClick={() => handleTogglePaid(selectedInvoice)}
-                  className={`w-full font-bold text-sm py-3 px-4 rounded-full flex items-center justify-center gap-1.5 transition-all ${
-                    selectedInvoice.is_paid 
-                      ? 'bg-deepNavy/10 hover:bg-deepNavy/15 text-deepNavy' 
+                  className={`w-full font-bold text-sm py-3 px-4 rounded-full flex items-center justify-center gap-1.5 transition-all ${selectedInvoice.is_paid
+                      ? 'bg-deepNavy/10 hover:bg-deepNavy/15 text-deepNavy'
                       : 'bg-electricTeal hover:bg-electricTeal/90 text-white shadow-md shadow-electricTeal/10'
-                  }`}
+                    }`}
                 >
                   {selectedInvoice.is_paid ? (
                     <>Ångra betalning</>
