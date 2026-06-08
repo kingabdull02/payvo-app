@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  User, 
-  Lock, 
-  Sparkles, 
-  ExternalLink, 
-  ChevronRight, 
-  LogOut, 
-  Edit2, 
-  ShieldCheck, 
+import {
+  User,
+  Lock,
+  Sparkles,
+  ExternalLink,
+  ChevronRight,
+  LogOut,
+  Edit2,
+  ShieldCheck,
   CreditCard,
   Plus,
   Settings,
@@ -138,7 +138,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
   const handleStripePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsStripeProcessing(true);
-    
+
     // Simulate API delay
     setTimeout(async () => {
       try {
@@ -184,8 +184,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
           <h1 className="text-xl font-extrabold text-deepNavy flex items-center gap-2">
             Inställningar
           </h1>
-          <img 
-            src={profile?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150'} 
+          <img
+            src={profile?.avatar_url || ''}
             alt="Profil"
             className="w-8 h-8 rounded-full object-cover border border-deepNavy/5 shadow-sm"
           />
@@ -194,12 +194,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
         {/* Profile Card Info */}
         <div className="bg-white/70 border border-deepNavy/5 shadow-sm rounded-3xl p-5 flex flex-col items-center text-center relative">
           <div className="relative">
-            <img 
-              src={profile?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150'} 
-              alt="Profilbild" 
+            <img
+              src={profile?.avatar_url || ''}
+              alt="Profilbild"
               className="w-20 h-20 rounded-full border-4 border-white object-cover shadow-md"
             />
-            <button 
+            <button
               onClick={() => setShowEditName(!showEditName)}
               className="absolute bottom-0 right-0 w-7 h-7 bg-[#00C2D1] text-white rounded-full flex items-center justify-center border-2 border-white shadow-sm active:scale-90 transition-transform"
             >
@@ -246,7 +246,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
                   Aktiv
                 </span>
               </div>
-              <button 
+              <button
                 onClick={() => alert('Mock: Hantering sker via Stripe Kundportal i produktion.')}
                 className="w-full flex justify-between items-center pt-2.5 border-t border-deepNavy/5 text-xs text-deepNavy/70 font-semibold hover:text-deepNavy"
               >
@@ -317,28 +317,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
             <div className="flex justify-between items-center">
               <div className="space-y-0.5">
                 <span className="text-xs font-bold text-deepNavy flex items-center gap-1.5">
-                  E-postpåminnelser 
+                  E-postpåminnelser
                   {!profile?.is_premium && <Lock size={11} className="text-deepNavy/30" />}
                 </span>
                 <span className="block text-[10px] text-deepNavy/40 leading-relaxed font-semibold">
                   Få notiser om kommande fakturor
                 </span>
               </div>
-              
+
               {/* Checked toggle button */}
               <button
                 type="button"
                 onClick={handleToggleNotifications}
-                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center ${
-                  profile?.email_notifications && profile?.is_premium
-                    ? 'bg-electricTeal' 
-                    : 'bg-deepNavy/10'
-                }`}
-              >
-                <div 
-                  className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 ${
-                    profile?.email_notifications && profile?.is_premium ? 'translate-x-5' : 'translate-x-0'
+                className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center ${profile?.email_notifications && profile?.is_premium
+                  ? 'bg-electricTeal'
+                  : 'bg-deepNavy/10'
                   }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 ${profile?.email_notifications && profile?.is_premium ? 'translate-x-5' : 'translate-x-0'
+                    }`}
                 />
               </button>
             </div>
@@ -349,14 +347,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
                 Påminn mig X dagar innan
                 {!profile?.is_premium && <Lock size={11} className="text-deepNavy/30" />}
               </span>
-              
+
               <select
                 disabled={!profile?.is_premium}
                 value={profile?.reminder_days || 3}
                 onChange={(e) => handleChangeReminderDays(parseInt(e.target.value, 10))}
-                className={`px-3 py-1.5 bg-iceWhite border border-deepNavy/5 rounded-xl text-xs font-bold text-deepNavy focus:outline-none focus:ring-1 focus:ring-electricTeal/50 ${
-                  !profile?.is_premium ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                }`}
+                className={`px-3 py-1.5 bg-iceWhite border border-deepNavy/5 rounded-xl text-xs font-bold text-deepNavy focus:outline-none focus:ring-1 focus:ring-electricTeal/50 ${!profile?.is_premium ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
               >
                 <option value={1}>1 dag innan</option>
                 <option value={3}>3 dagar innan</option>
@@ -410,7 +407,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
           <div className="bg-white rounded-t-[32px] rounded-b-[24px] w-full max-w-[360px] p-6 space-y-4 shadow-2xl animate-slide-up border border-deepNavy/5">
             <div className="flex justify-between items-center">
               <h3 className="text-base font-extrabold text-deepNavy">Byt lösenord</h3>
-              <button 
+              <button
                 onClick={() => setShowEditPassword(false)}
                 className="w-8 h-8 rounded-full bg-iceWhite flex items-center justify-center text-deepNavy/50"
               >
@@ -475,7 +472,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
               <span className="text-sm font-extrabold flex items-center gap-1">
                 <CreditCard size={15} /> stripe
               </span>
-              <button 
+              <button
                 onClick={() => setShowStripeModal(false)}
                 className="text-white/80 hover:text-white text-sm"
               >
