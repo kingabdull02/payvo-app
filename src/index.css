@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+@theme {
+  --color-deepNavy: #0D1B2A;
+  --color-electricTeal: #00C2D1;
+  --color-iceWhite: #F4F7FB;
+  --color-overdueRed: #FF4D6D;
+  --color-warningAmber: #FFB347;
+  --font-sans: "Plus Jakarta Sans", "Inter", "system-ui", "sans-serif";
+}
+
+@layer base {
+  body {
+    @apply bg-iceWhite text-deepNavy antialiased font-sans overflow-x-hidden;
+    background-color: #F4F7FB;
+  }
+}
+
+/* Glassmorphism custom classes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glass-panel-dark {
+  background: rgba(13, 27, 42, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(0, 194, 209, 0.04), 0 4px 12px 0 rgba(13, 27, 42, 0.02);
+}
+
+/* Custom transitions and scrollbar rules */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(13, 27, 42, 0.1);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(13, 27, 42, 0.2);
+}
+
+/* Safe Area margins for bottom nav bar */
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 5rem);
+}
