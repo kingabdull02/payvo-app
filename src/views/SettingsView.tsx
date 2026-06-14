@@ -8,18 +8,18 @@ import {
   LogOut,
   Edit2,
   ShieldCheck,
-  CreditCard,
-  Plus,
-  Settings,
-  Calendar
+  CreditCard
 } from 'lucide-react';
 import { dbAPI } from '../db/dbClient';
 import type { Profile } from '../db/dbClient';
+import { Avatar } from '../components/Avatar';
+import { BottomNav } from '../components/BottomNav';
 import confetti from 'canvas-confetti';
+import type { ViewState } from '../types';
 
 interface SettingsViewProps {
   userId: string;
-  onNavigate: (view: 'login' | 'register' | 'forgot' | 'dashboard' | 'add-bill' | 'settings') => void;
+  onNavigate: (view: ViewState) => void;
   onLogout: () => void;
 }
 
@@ -184,20 +184,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
           <h1 className="text-xl font-extrabold text-deepNavy flex items-center gap-2">
             Inställningar
           </h1>
-          <img
-            src={profile?.avatar_url || ''}
-            alt="Profil"
-            className="w-8 h-8 rounded-full object-cover border border-deepNavy/5 shadow-sm"
+          <Avatar
+            name={profile?.name}
+            avatarUrl={profile?.avatar_url}
+            size="sm"
+            className="border border-deepNavy/5 shadow-sm"
           />
         </div>
 
         {/* Profile Card Info */}
         <div className="bg-white/70 border border-deepNavy/5 shadow-sm rounded-3xl p-5 flex flex-col items-center text-center relative">
           <div className="relative">
-            <img
-              src={profile?.avatar_url || ''}
-              alt="Profilbild"
-              className="w-20 h-20 rounded-full border-4 border-white object-cover shadow-md"
+            <Avatar
+              name={profile?.name}
+              avatarUrl={profile?.avatar_url}
+              size="lg"
+              className="border-4 border-white shadow-md"
             />
             <button
               onClick={() => setShowEditName(!showEditName)}
@@ -374,32 +376,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ userId, onNavigate, 
         </div>
       </div>
 
-      {/* FIXED BOTTOM NAV */}
-      <div className="bg-white/70 backdrop-blur-lg border-t border-deepNavy/5 py-3 px-6 flex justify-around items-center z-40">
-        <button
-          onClick={() => onNavigate('dashboard')}
-          className="flex flex-col items-center gap-1 text-deepNavy/40 hover:text-deepNavy/70 active:scale-95 transition-transform"
-        >
-          <Calendar size={20} />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Översikt</span>
-        </button>
-
-        {/* Big Add Floating Button */}
-        <button
-          onClick={() => onNavigate('add-bill')}
-          className="w-12 h-12 bg-deepNavy hover:bg-deepNavy/90 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform -translate-y-2 border-4 border-iceWhite"
-        >
-          <Plus size={24} />
-        </button>
-
-        <button
-          onClick={() => onNavigate('settings')}
-          className="flex flex-col items-center gap-1 text-electricTeal active:scale-95 transition-transform"
-        >
-          <Settings size={20} />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Inställningar</span>
-        </button>
-      </div>
+      <BottomNav
+        activeView="settings"
+        onNavigate={onNavigate}
+        onAddBill={() => onNavigate('add-bill')}
+      />
 
       {/* INLINE EDIT PASSWORD DRAWER MODAL */}
       {showEditPassword && (

@@ -3,11 +3,12 @@ import { ArrowLeft, Check, Lightbulb, ChevronRight } from 'lucide-react';
 import { dbAPI } from '../db/dbClient';
 import type { Invoice } from '../db/dbClient';
 import { CATEGORIES, getCategoryByName } from '../utils/categories';
+import type { ViewState } from '../types';
 
 interface AddBillViewProps {
   userId: string;
   editInvoice: Invoice | null;
-  onNavigate: (view: 'login' | 'register' | 'forgot' | 'dashboard' | 'add-bill' | 'settings') => void;
+  onNavigate: (view: ViewState) => void;
   onSuccess: () => void;
 }
 

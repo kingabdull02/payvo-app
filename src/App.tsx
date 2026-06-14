@@ -9,8 +9,7 @@ import { AddBillView } from './views/AddBillView';
 import { SettingsView } from './views/SettingsView';
 import { dbAPI } from './db/dbClient';
 import type { Invoice } from './db/dbClient';
-
-type ViewState = 'login' | 'register' | 'forgot' | 'dashboard' | 'add-bill' | 'settings';
+import type { ViewState } from './types';
 
 export default function App() {
   const [activeView, setActiveView] = useState<ViewState>('login');

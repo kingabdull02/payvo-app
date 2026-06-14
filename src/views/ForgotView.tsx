@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Mail, Key, ArrowRight, ArrowLeft } from 'lucide-react';
 import { dbAPI } from '../db/dbClient';
+import type { ViewState } from '../types';
 
 interface ForgotViewProps {
-  onNavigate: (view: 'login' | 'register' | 'forgot' | 'dashboard' | 'add-bill' | 'settings') => void;
+  onNavigate: (view: ViewState) => void;
 }
 
 export const ForgotView: React.FC<ForgotViewProps> = ({ onNavigate }) => {

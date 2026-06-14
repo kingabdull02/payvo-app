@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Wallet } from 'lucide-react';
 import { dbAPI } from '../db/dbClient';
+import type { ViewState } from '../types';
 
 interface LoginViewProps {
-  onNavigate: (view: 'login' | 'register' | 'forgot' | 'dashboard' | 'add-bill' | 'settings') => void;
+  onNavigate: (view: ViewState) => void;
   onLoginSuccess: (userId: string) => void;
 }
 

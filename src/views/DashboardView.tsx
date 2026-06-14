@@ -2,32 +2,34 @@ import React, { useState, useEffect } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
-  Plus,
-  Settings,
   History,
   Lock,
   Sparkles,
-  Calendar,
   Check,
   Trash2,
   Edit3,
-  AlertCircle
+  AlertCircle,
+  Settings
 } from 'lucide-react';
 import { dbAPI } from '../db/dbClient';
 import type { Invoice, Profile } from '../db/dbClient';
 import { getCategoryByName } from '../utils/categories';
+import { getDueLabel, getInvoiceStatus } from '../utils/dateUtils';
+import { Avatar } from '../components/Avatar';
+import { BottomNav } from '../components/BottomNav';
 import confetti from 'canvas-confetti';
-
-interface DashboardViewProps {
-  userId: string;
-  onNavigate: (view: 'login' | 'register' | 'forgot' | 'dashboard' | 'add-bill' | 'settings') => void;
-  onSelectEditInvoice: (invoice: Invoice) => void;
-}
+import type { ViewState } from '../types';
 
 const MONTHS_SWEDISH = [
   'Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni',
   'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'
 ];
+
+interface DashboardViewProps {
+  userId: string;
+  onNavigate: (view: ViewState) => void;
+  onSelectEditInvoice: (invoice: Invoice) => void;
+}
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   userId,
@@ -105,72 +107,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const totalLeft = totalToPay - totalPaid;
   const percentCompleted = totalToPay > 0 ? Math.round((totalPaid / totalToPay) * 100) : 0;
 
-  // Relative Swedish date label
-  const getDueLabel = (invoice: Invoice) => {
-    if (invoice.is_paid) {
-      const [, , dayStr] = invoice.due_date.split('-');
-      const day = parseInt(dayStr, 10);
-      const swedishMonth = MONTHS_SWEDISH[currentMonth - 1].toLowerCase().substring(0, 3);
-      return `Betald: ${day} ${swedishMonth}`;
-    }
-
-    const todayDate = new Date();
-    todayDate.setHours(0, 0, 0, 0);
-    const dueDate = new Date(invoice.due_date + 'T00:00:00');
-
-    // Difference in days
-    const diffTime = dueDate.getTime() - todayDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Förfaller: Idag';
-    if (diffDays === 1) return 'Förfaller: Imorgon';
-    if (diffDays === -1) return 'Förfallen: Igår';
-    if (diffDays < 0) return `Förfallen: ${Math.abs(diffDays)} dagar sedan`;
-
-    const [, , dayStr] = invoice.due_date.split('-');
-    const day = parseInt(dayStr, 10);
-    const swedishMonth = MONTHS_SWEDISH[currentMonth - 1].toLowerCase().substring(0, 3);
-    return `Förfaller: ${day} ${swedishMonth}`;
-  };
-
-  // Status badge style helper
-  const getInvoiceStatus = (invoice: Invoice): { label: string; textClass: string; bgClass: string } => {
-    if (invoice.is_paid) {
-      return {
-        label: 'Betald',
-        textClass: 'text-electricTeal font-bold',
-        bgClass: 'bg-electricTeal/10 text-electricTeal'
-      };
-    }
-
-    const todayDate = new Date();
-    todayDate.setHours(0, 0, 0, 0);
-    const dueDate = new Date(invoice.due_date + 'T00:00:00');
-    const diffTime = dueDate.getTime() - todayDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) {
-      return {
-        label: 'Förfallen',
-        textClass: 'text-overdueRed font-bold',
-        bgClass: 'bg-overdueRed/10 text-overdueRed'
-      };
-    }
-
-    if (diffDays <= 3) {
-      return {
-        label: 'Förfaller snart',
-        textClass: 'text-warningAmber font-bold',
-        bgClass: 'bg-warningAmber/10 text-warningAmber'
-      };
-    }
-
-    return {
-      label: 'Obetald',
-      textClass: 'text-deepNavy/60 font-bold',
-      bgClass: 'bg-deepNavy/5 text-deepNavy/60'
-    };
-  };
 
   // Toggle invoice paid
   const handleTogglePaid = async (invoice: Invoice) => {
@@ -249,10 +185,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Top Header */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img
-              src={profile?.avatar_url || ''}
-              alt="Profil"
-              className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm cursor-pointer"
+            <Avatar
+              name={profile?.name}
+              avatarUrl={profile?.avatar_url}
+              size="md"
+              className="border-2 border-white shadow-sm"
               onClick={() => onNavigate('settings')}
             />
             <div>
@@ -392,7 +329,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                               {inv.name}
                             </h4>
                             <p className="text-[11px] text-deepNavy/50 mt-0.5 font-medium">
-                              {getDueLabel(inv)}
+                              {getDueLabel(inv, currentMonth)}
                             </p>
                           </div>
                         </div>
@@ -419,40 +356,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         )}
       </div>
 
-      {/* FIXED BOTTOM TAB NAVIGATION */}
-      <div className="absolute bottom-0 inset-x-0 bg-white/70 backdrop-blur-lg border-t border-deepNavy/5 py-3 px-6 flex justify-around items-center z-40">
-        <button
-          onClick={() => onNavigate('dashboard')}
-          className="flex flex-col items-center gap-1 text-electricTeal active:scale-95 transition-transform"
-        >
-          <Calendar size={20} />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Översikt</span>
-        </button>
-
-        {/* Big Add Floating Button */}
-        <button
-          onClick={() => {
-            // Check limits for Free Plan
-            if (!profile?.is_premium && invoices.length >= 5) {
-              alert('Du har nått MVP-gränsen på max 5 fakturor. Uppgradera till Premium under inställningar för obegränsade fakturor!');
-              onNavigate('settings');
-            } else {
-              onNavigate('add-bill');
-            }
-          }}
-          className="w-12 h-12 bg-deepNavy hover:bg-deepNavy/90 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform -translate-y-2 border-4 border-iceWhite"
-        >
-          <Plus size={24} />
-        </button>
-
-        <button
-          onClick={() => onNavigate('settings')}
-          className="flex flex-col items-center gap-1 text-deepNavy/40 hover:text-deepNavy/70 active:scale-95 transition-transform"
-        >
-          <Settings size={20} />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Inställningar</span>
-        </button>
-      </div>
+      <BottomNav
+        activeView="dashboard"
+        onNavigate={onNavigate}
+        onAddBill={() => {
+          if (!profile?.is_premium && invoices.length >= 5) {
+            alert('Du har nått MVP-gränsen på max 5 fakturor. Uppgradera till Premium under inställningar för obegränsade fakturor!');
+            onNavigate('settings');
+          } else {
+            onNavigate('add-bill');
+          }
+        }}
+      />
 
       {/* DETAIL ACTION MODAL */}
       {selectedInvoice && (
