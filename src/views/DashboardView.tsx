@@ -3,7 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   History,
-  Lock,
   Sparkles,
   Check,
   Trash2,
@@ -64,12 +63,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       setProfile(p);
 
       // Only fetch invoices if premium or if viewing current month
-      if (p?.is_premium || isCurrentMonth) {
-        const invs = await dbAPI.invoices.list(userId, monthKey);
-        setInvoices(invs);
-      } else {
-        setInvoices([]);
-      }
+      const invs = await dbAPI.invoices.list(userId, monthKey);
+      setInvoices(invs);
     } catch (err) {
       console.error('Failed to load dashboard data', err);
     } finally {
@@ -110,8 +105,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Toggle invoice paid
   const handleTogglePaid = async (invoice: Invoice) => {
-    if (isHistoryMonth && !profile?.is_premium) return; // locked view
-    if (isHistoryMonth && profile?.is_premium) return; // read-only history as per spec
+    if (isHistoryMonth) return; // read-only history
 
     const newPaidStatus = !invoice.is_paid;
     try {
@@ -161,22 +155,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     }
   };
 
-  // Trigger premium upgrade mock
-  const handleUpgradeToPremium = async () => {
-    try {
-      const updated = await dbAPI.profile.update(userId, { is_premium: true });
-      if (updated) {
-        setProfile(updated);
-        confetti({
-          particleCount: 150,
-          spread: 80,
-          origin: { y: 0.5 }
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
     <div className="flex-1 flex flex-col justify-between pb-safe relative h-full">
@@ -223,150 +201,121 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <ChevronRight size={20} />
           </button>
         </div>
-
-        {/* PREMIUM LOCK COVER (For past/future months on free accounts) */}
-        {!isCurrentMonth && !profile?.is_premium ? (
-          <div className="bg-white/70 backdrop-blur-md rounded-[32px] border border-white/60 p-8 text-center flex flex-col items-center justify-center shadow-lg space-y-5 my-6 min-h-[400px]">
-            <div className="w-16 h-16 bg-[#FFB347]/10 rounded-2xl flex items-center justify-center text-warningAmber shadow-inner">
-              <Lock size={28} />
+        <>
+          {/* Glassmorphism Budget Card */}
+          <div className="glass-card rounded-[32px] p-6 text-deepNavy relative overflow-hidden transition-all duration-300">
+            <span className="text-xs font-bold text-deepNavy/50 uppercase tracking-wider">Totalt att betala</span>
+            <div className="text-3xl font-black mt-1 flex items-baseline gap-1">
+              {totalToPay.toLocaleString('sv-SE')} <span className="text-lg font-extrabold text-deepNavy/70">kr</span>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold text-deepNavy">Månadshistorik är Premium</h3>
-              <p className="text-xs text-deepNavy/60 leading-relaxed max-w-[260px] mx-auto">
-                Bli Premium-medlem för endast 19 kr/månad för att låsa upp obegränsad månadshistorik och kommande räkningar.
-              </p>
-            </div>
-            <button
-              onClick={handleUpgradeToPremium}
-              className="bg-electricTeal text-white font-bold text-xs px-6 py-3 rounded-full shadow-lg shadow-electricTeal/20 hover:bg-electricTeal/90 transition-all flex items-center gap-1.5 active:scale-95"
-            >
-              <Sparkles size={14} /> Skaffa Premium för 19 kr
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* Glassmorphism Budget Card */}
-            <div className="glass-card rounded-[32px] p-6 text-deepNavy relative overflow-hidden transition-all duration-300">
-              <span className="text-xs font-bold text-deepNavy/50 uppercase tracking-wider">Totalt att betala</span>
-              <div className="text-3xl font-black mt-1 flex items-baseline gap-1">
-                {totalToPay.toLocaleString('sv-SE')} <span className="text-lg font-extrabold text-deepNavy/70">kr</span>
-              </div>
 
-              {/* Aggregates Row */}
-              <div className="grid grid-cols-2 gap-4 mt-5 pt-4 border-t border-deepNavy/5">
-                <div>
-                  <span className="text-[10px] font-bold text-deepNavy/50 uppercase tracking-wider">Kvar att betala</span>
-                  <div className="text-[15px] font-extrabold text-overdueRed mt-0.5">
-                    {totalLeft.toLocaleString('sv-SE')} kr
-                  </div>
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-deepNavy/50 uppercase tracking-wider">Redan betalt</span>
-                  <div className="text-[15px] font-extrabold text-electricTeal mt-0.5">
-                    {totalPaid.toLocaleString('sv-SE')} kr
-                  </div>
+            {/* Aggregates Row */}
+            <div className="grid grid-cols-2 gap-4 mt-5 pt-4 border-t border-deepNavy/5">
+              <div>
+                <span className="text-[10px] font-bold text-deepNavy/50 uppercase tracking-wider">Kvar att betala</span>
+                <div className="text-[15px] font-extrabold text-overdueRed mt-0.5">
+                  {totalLeft.toLocaleString('sv-SE')} kr
                 </div>
               </div>
-
-              {/* Progress Bar */}
-              <div className="mt-5 space-y-1.5">
-                <div className="w-full bg-deepNavy/5 h-2.5 rounded-full overflow-hidden">
-                  <div
-                    className="bg-electricTeal h-full rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${percentCompleted}%` }}
-                  ></div>
-                </div>
-                <div className="text-[11px] font-bold text-deepNavy/50 flex justify-between">
-                  <span>{percentCompleted}% avklarat</span>
-                  {percentCompleted === 100 && totalToPay > 0 && (
-                    <span className="text-electricTeal flex items-center gap-1 text-[10px]">
-                      <Sparkles size={11} /> Allt betalt denna månad!
-                    </span>
-                  )}
+              <div>
+                <span className="text-[10px] font-bold text-deepNavy/50 uppercase tracking-wider">Redan betalt</span>
+                <div className="text-[15px] font-extrabold text-electricTeal mt-0.5">
+                  {totalPaid.toLocaleString('sv-SE')} kr
                 </div>
               </div>
             </div>
 
-            {/* Invoices List Section */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <h2 className="text-base font-extrabold text-deepNavy">Fakturor</h2>
-                {isHistoryMonth && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-deepNavy/5 rounded-full text-deepNavy/50 flex items-center gap-1">
-                    <History size={10} /> Skrivskyddad historik
+            {/* Progress Bar */}
+            <div className="mt-5 space-y-1.5">
+              <div className="w-full bg-deepNavy/5 h-2.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-electricTeal h-full rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${percentCompleted}%` }}
+                ></div>
+              </div>
+              <div className="text-[11px] font-bold text-deepNavy/50 flex justify-between">
+                <span>{percentCompleted}% avklarat</span>
+                {percentCompleted === 100 && totalToPay > 0 && (
+                  <span className="text-electricTeal flex items-center gap-1 text-[10px]">
+                    <Sparkles size={11} /> Allt betalt denna månad!
                   </span>
                 )}
               </div>
+            </div>
+          </div>
 
-              {invoices.length === 0 ? (
-                <div className="bg-white/50 border border-deepNavy/5 rounded-[24px] py-12 px-4 text-center text-xs text-deepNavy/40 font-medium">
-                  {loading ? 'Hämtar fakturor...' : 'Inga fakturor tillagda denna månad.'}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {invoices.map((inv) => {
-                    const categoryInfo = getCategoryByName(inv.category || inv.icon);
-                    const statusInfo = getInvoiceStatus(inv);
-                    const CatIcon = categoryInfo.icon;
+          {/* Invoices List Section */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <h2 className="text-base font-extrabold text-deepNavy">Fakturor</h2>
+              {isHistoryMonth && (
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-deepNavy/5 rounded-full text-deepNavy/50 flex items-center gap-1">
+                  <History size={10} /> Skrivskyddad historik
+                </span>
+              )}
+            </div>
 
-                    return (
-                      <div
-                        key={inv.id}
-                        onClick={() => setSelectedInvoice(inv)}
-                        className={`bg-white hover:bg-iceWhite/50 active:bg-iceWhite border border-deepNavy/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer transition-all duration-150 transform hover:-translate-y-0.5 ${inv.is_paid ? 'opacity-85' : ''
-                          }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {/* Colored category Icon */}
-                          <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                            style={{ backgroundColor: categoryInfo.color }}
-                          >
-                            <CatIcon size={20} />
-                          </div>
-                          <div>
-                            <h4 className={`text-sm font-bold text-deepNavy ${inv.is_paid ? 'line-through opacity-60' : ''}`}>
-                              {inv.name}
-                            </h4>
-                            <p className="text-[11px] text-deepNavy/50 mt-0.5 font-medium">
-                              {getDueLabel(inv, currentMonth)}
-                            </p>
-                          </div>
+            {invoices.length === 0 ? (
+              <div className="bg-white/50 border border-deepNavy/5 rounded-[24px] py-12 px-4 text-center text-xs text-deepNavy/40 font-medium">
+                {loading ? 'Hämtar fakturor...' : 'Inga fakturor tillagda denna månad.'}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {invoices.map((inv) => {
+                  const categoryInfo = getCategoryByName(inv.category || inv.icon);
+                  const statusInfo = getInvoiceStatus(inv);
+                  const CatIcon = categoryInfo.icon;
+
+                  return (
+                    <div
+                      key={inv.id}
+                      onClick={() => setSelectedInvoice(inv)}
+                      className={`bg-white hover:bg-iceWhite/50 active:bg-iceWhite border border-deepNavy/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer transition-all duration-150 transform hover:-translate-y-0.5 ${inv.is_paid ? 'opacity-85' : ''
+                        }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Colored category Icon */}
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+                          style={{ backgroundColor: categoryInfo.color }}
+                        >
+                          <CatIcon size={20} />
                         </div>
-
-                        <div className="text-right flex flex-col items-end gap-1">
-                          <span className={`text-sm font-black text-deepNavy ${inv.is_paid ? 'opacity-60' : ''}`}>
-                            {Number(inv.amount).toLocaleString('sv-SE')} kr
-                          </span>
-                          <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${statusInfo.bgClass}`}>
-                            {statusInfo.label}
-                          </span>
+                        <div>
+                          <h4 className={`text-sm font-bold text-deepNavy ${inv.is_paid ? 'line-through opacity-60' : ''}`}>
+                            {inv.name}
+                          </h4>
+                          <p className="text-[11px] text-deepNavy/50 mt-0.5 font-medium">
+                            {getDueLabel(inv, currentMonth)}
+                          </p>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
 
-              <p className="text-center text-[10px] text-deepNavy/30 font-medium py-2">
-                Tryck på en faktura för att ändra status eller redigera.
-              </p>
-            </div>
-          </>
-        )}
+                      <div className="text-right flex flex-col items-end gap-1">
+                        <span className={`text-sm font-black text-deepNavy ${inv.is_paid ? 'opacity-60' : ''}`}>
+                          {Number(inv.amount).toLocaleString('sv-SE')} kr
+                        </span>
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${statusInfo.bgClass}`}>
+                          {statusInfo.label}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <p className="text-center text-[10px] text-deepNavy/30 font-medium py-2">
+              Tryck på en faktura för att ändra status eller redigera.
+            </p>
+          </div>
+        </>
       </div>
 
       <BottomNav
         activeView="dashboard"
         onNavigate={onNavigate}
-        onAddBill={() => {
-          if (!profile?.is_premium && invoices.length >= 5) {
-            alert('Du har nått MVP-gränsen på max 5 fakturor. Uppgradera till Premium under inställningar för obegränsade fakturor!');
-            onNavigate('settings');
-          } else {
-            onNavigate('add-bill');
-          }
-        }}
+        onAddBill={() => onNavigate('add-bill')}
       />
 
       {/* DETAIL ACTION MODAL */}
@@ -421,8 +370,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   onClick={() => handleTogglePaid(selectedInvoice)}
                   className={`w-full font-bold text-sm py-3 px-4 rounded-full flex items-center justify-center gap-1.5 transition-all ${selectedInvoice.is_paid
-                      ? 'bg-deepNavy/10 hover:bg-deepNavy/15 text-deepNavy'
-                      : 'bg-electricTeal hover:bg-electricTeal/90 text-white shadow-md shadow-electricTeal/10'
+                    ? 'bg-deepNavy/10 hover:bg-deepNavy/15 text-deepNavy'
+                    : 'bg-electricTeal hover:bg-electricTeal/90 text-white shadow-md shadow-electricTeal/10'
                     }`}
                 >
                   {selectedInvoice.is_paid ? (
