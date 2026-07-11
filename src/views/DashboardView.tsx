@@ -101,6 +101,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const totalPaid = invoices.reduce((sum, inv) => sum + (inv.is_paid ? Number(inv.amount) : 0), 0);
   const totalLeft = totalToPay - totalPaid;
   const percentCompleted = totalToPay > 0 ? Math.round((totalPaid / totalToPay) * 100) : 0;
+  const fixedInvoices = invoices.filter(inv => inv.recurring_id);
+  const variableInvoices = invoices.filter(inv => !inv.recurring_id);
 
 
   // Toggle invoice paid
@@ -153,6 +155,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const renderInvoiceCard = (inv: Invoice) => {
+    const categoryInfo = getCategoryByName(inv.category || inv.icon);
+    const statusInfo = getInvoiceStatus(inv);
+    const CatIcon = categoryInfo.icon;
+
+    return (
+      <div
+        key={inv.id}
+        onClick={() => setSelectedInvoice(inv)}
+        className={`bg-white hover:bg-iceWhite/50 active:bg-iceWhite border border-deepNavy/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer transition-all duration-150 transform hover:-translate-y-0.5 ${inv.is_paid ? 'opacity-85' : ''
+          }`}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+            style={{ backgroundColor: categoryInfo.color }}
+          >
+            <CatIcon size={20} />
+          </div>
+          <div>
+            <h4 className={`text-sm font-bold text-deepNavy ${inv.is_paid ? 'line-through opacity-60' : ''}`}>
+              {inv.name}
+            </h4>
+            <p className="text-[11px] text-deepNavy/50 mt-0.5 font-medium">
+              {getDueLabel(inv, currentMonth)}
+            </p>
+          </div>
+        </div>
+
+        <div className="text-right flex flex-col items-end gap-1">
+          <span className={`text-sm font-black text-deepNavy ${inv.is_paid ? 'opacity-60' : ''}`}>
+            {Number(inv.amount).toLocaleString('sv-SE')} kr
+          </span>
+          <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${statusInfo.bgClass}`}>
+            {statusInfo.label}
+          </span>
+        </div>
+      </div>
+    );
   };
 
 
@@ -245,7 +288,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Invoices List Section */}
-          <div className="space-y-3">
+          <div className="space-y-5">
             <div className="flex justify-between items-center">
               <h2 className="text-base font-extrabold text-deepNavy">Fakturor</h2>
               {isHistoryMonth && (
@@ -260,49 +303,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 {loading ? 'Hämtar fakturor...' : 'Inga fakturor tillagda denna månad.'}
               </div>
             ) : (
-              <div className="space-y-3">
-                {invoices.map((inv) => {
-                  const categoryInfo = getCategoryByName(inv.category || inv.icon);
-                  const statusInfo = getInvoiceStatus(inv);
-                  const CatIcon = categoryInfo.icon;
-
-                  return (
-                    <div
-                      key={inv.id}
-                      onClick={() => setSelectedInvoice(inv)}
-                      className={`bg-white hover:bg-iceWhite/50 active:bg-iceWhite border border-deepNavy/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer transition-all duration-150 transform hover:-translate-y-0.5 ${inv.is_paid ? 'opacity-85' : ''
-                        }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        {/* Colored category Icon */}
-                        <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                          style={{ backgroundColor: categoryInfo.color }}
-                        >
-                          <CatIcon size={20} />
-                        </div>
-                        <div>
-                          <h4 className={`text-sm font-bold text-deepNavy ${inv.is_paid ? 'line-through opacity-60' : ''}`}>
-                            {inv.name}
-                          </h4>
-                          <p className="text-[11px] text-deepNavy/50 mt-0.5 font-medium">
-                            {getDueLabel(inv, currentMonth)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-right flex flex-col items-end gap-1">
-                        <span className={`text-sm font-black text-deepNavy ${inv.is_paid ? 'opacity-60' : ''}`}>
-                          {Number(inv.amount).toLocaleString('sv-SE')} kr
-                        </span>
-                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${statusInfo.bgClass}`}>
-                          {statusInfo.label}
-                        </span>
-                      </div>
+              <>
+                {fixedInvoices.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-[11px] font-bold text-deepNavy/40 uppercase tracking-widest pl-1">Fasta räkningar</h3>
+                    <div className="space-y-3">
+                      {fixedInvoices.map(renderInvoiceCard)}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                )}
+
+                {variableInvoices.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-[11px] font-bold text-deepNavy/40 uppercase tracking-widest pl-1">Rörliga fakturor</h3>
+                    <div className="space-y-3">
+                      {variableInvoices.map(renderInvoiceCard)}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             <p className="text-center text-[10px] text-deepNavy/30 font-medium py-2">
