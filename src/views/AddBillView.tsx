@@ -116,6 +116,15 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
     try {
       if (isEditMode && editInvoice) {
         // Redigera faktura
+        // If recurring, recompute this month's due date based on the new due day
+        let instanceDueDate = dueDate;
+        if (isRecurring) {
+          const [y, m] = editInvoice.due_date.split('-').map(Number);
+          const daysInMonth = new Date(y, m, 0).getDate();
+          const safeDay = Math.min(parseInt(dueDay, 10), daysInMonth);
+          instanceDueDate = `${y}-${String(m).padStart(2, '0')}-${String(safeDay).padStart(2, '0')}`;
+        }
+
         // Update the invoice instance
         const updatedInvoice = await dbAPI.invoices.update(userId, editInvoice.id, {
           name,
@@ -124,9 +133,7 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
           icon: activeCategory.iconName,
           notes,
           is_paid: isPaid,
-          due_date: isRecurring
-            ? editInvoice.due_date // Keep existing date but name/amount changes
-            : dueDate
+          due_date: instanceDueDate
         });
 
         // If it's linked to a recurring config, update the master name/amount too.
@@ -226,8 +233,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
             <button
               onClick={() => setIsRecurring(true)}
               className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 ${isRecurring
-                  ? 'bg-white text-deepNavy shadow-sm'
-                  : 'text-deepNavy/50 hover:text-deepNavy'
+                ? 'bg-white text-deepNavy shadow-sm'
+                : 'text-deepNavy/50 hover:text-deepNavy'
                 }`}
             >
               Fast faktura
@@ -235,8 +242,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
             <button
               onClick={() => setIsRecurring(false)}
               className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 ${!isRecurring
-                  ? 'bg-white text-deepNavy shadow-sm'
-                  : 'text-deepNavy/50 hover:text-deepNavy'
+                ? 'bg-white text-deepNavy shadow-sm'
+                : 'text-deepNavy/50 hover:text-deepNavy'
                 }`}
             >
               Rörlig faktura
@@ -371,8 +378,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
               type="button"
               onClick={() => setIsPaid(false)}
               className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all ${!isPaid
-                  ? 'bg-white text-deepNavy shadow-sm'
-                  : 'text-deepNavy/50 hover:text-deepNavy'
+                ? 'bg-white text-deepNavy shadow-sm'
+                : 'text-deepNavy/50 hover:text-deepNavy'
                 }`}
             >
               Kommande
@@ -381,8 +388,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
               type="button"
               onClick={() => setIsPaid(true)}
               className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all ${isPaid
-                  ? 'bg-electricTeal text-white shadow-sm'
-                  : 'text-deepNavy/50 hover:text-deepNavy'
+                ? 'bg-electricTeal text-white shadow-sm'
+                : 'text-deepNavy/50 hover:text-deepNavy'
                 }`}
             >
               Betald
@@ -442,8 +449,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
                       setShowCategoryGrid(false);
                     }}
                     className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all ${isSelected
-                        ? 'border-electricTeal bg-electricTeal/5'
-                        : 'border-deepNavy/5 hover:bg-iceWhite'
+                      ? 'border-electricTeal bg-electricTeal/5'
+                      : 'border-deepNavy/5 hover:bg-iceWhite'
                       }`}
                   >
                     <div
