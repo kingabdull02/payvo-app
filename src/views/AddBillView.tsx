@@ -12,11 +12,11 @@ interface AddBillViewProps {
   onSuccess: () => void;
 }
 
-export const AddBillView: React.FC<AddBillViewProps> = ({ 
-  userId, 
-  editInvoice, 
-  onNavigate, 
-  onSuccess 
+export const AddBillView: React.FC<AddBillViewProps> = ({
+  userId,
+  editInvoice,
+  onNavigate,
+  onSuccess
 }) => {
   const isEditMode = !!editInvoice;
 
@@ -50,7 +50,7 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
       setSelectedCategoryName(editInvoice.category);
       setNotes(editInvoice.notes || '');
       setIsPaid(editInvoice.is_paid);
-      
+
       if (editInvoice.recurring_id) {
         setIsRecurring(true);
         // Look up the recurring invoice to find its due day
@@ -94,9 +94,9 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
         const selectedDate = new Date(dueDate);
         const todayCheck = new Date();
         // Set hours to 0 to compare days
-        selectedDate.setHours(0,0,0,0);
-        todayCheck.setHours(0,0,0,0);
-        
+        selectedDate.setHours(0, 0, 0, 0);
+        todayCheck.setHours(0, 0, 0, 0);
+
         if (selectedDate < todayCheck && !isEditMode) {
           newErrors.dueDate = 'Förfallodatumet kan inte vara i det förflutna.';
         }
@@ -112,7 +112,7 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
     setIsSaving(true);
 
     const parsedAmount = parseFloat(amount);
-    
+
     try {
       if (isEditMode && editInvoice) {
         // Redigera faktura
@@ -124,18 +124,14 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
           icon: activeCategory.iconName,
           notes,
           is_paid: isPaid,
-          due_date: isRecurring 
+          due_date: isRecurring
             ? editInvoice.due_date // Keep existing date but name/amount changes
             : dueDate
         });
 
-        // If it's linked to a recurring config, update the template name/amount too?
-        // In spec: "kan redaderas manuellt... Fasta: skapas en gång och återkommer".
-        // Let's update the master config if it's recurring.
+        // If it's linked to a recurring config, update the master name/amount too.
         if (editInvoice.recurring_id && updatedInvoice) {
-          await dbAPI.recurring.delete(userId, editInvoice.recurring_id);
-          // Re-create updated master
-          await dbAPI.recurring.create(userId, {
+          await dbAPI.recurring.update(userId, editInvoice.recurring_id, {
             name,
             amount: parsedAmount,
             due_day: parseInt(dueDay, 10),
@@ -156,7 +152,7 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
             icon: activeCategory.iconName,
             notes
           });
-          
+
           // 2. Generate instance for the current month if applicable
           if (master) {
             // Note: dbAPI.invoices.list automatically instantiates this when user navigates,
@@ -165,7 +161,7 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
             const year = nowDate.getFullYear();
             const month = nowDate.getMonth() + 1;
             const paddedMonth = String(month).padStart(2, '0');
-            
+
             // Format safe day date
             const daysInMonth = new Date(year, month, 0).getDate();
             const safeDay = Math.min(master.due_day, daysInMonth);
@@ -229,21 +225,19 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
           <div className="bg-deepNavy/5 p-1 rounded-xl flex gap-1 mt-5">
             <button
               onClick={() => setIsRecurring(true)}
-              className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 ${
-                isRecurring
+              className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 ${isRecurring
                   ? 'bg-white text-deepNavy shadow-sm'
                   : 'text-deepNavy/50 hover:text-deepNavy'
-              }`}
+                }`}
             >
               Fast faktura
             </button>
             <button
               onClick={() => setIsRecurring(false)}
-              className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 ${
-                !isRecurring
+              className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 ${!isRecurring
                   ? 'bg-white text-deepNavy shadow-sm'
                   : 'text-deepNavy/50 hover:text-deepNavy'
-              }`}
+                }`}
             >
               Rörlig faktura
             </button>
@@ -267,9 +261,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="t.ex. Hyra, Spotify, El"
-            className={`w-full px-4 py-3 bg-white border rounded-xl text-sm text-deepNavy placeholder-deepNavy/30 focus:outline-none focus:ring-2 focus:ring-electricTeal/20 transition-all ${
-              errors.name ? 'border-overdueRed focus:ring-overdueRed/20' : 'border-deepNavy/5 focus:border-electricTeal'
-            }`}
+            className={`w-full px-4 py-3 bg-white border rounded-xl text-sm text-deepNavy placeholder-deepNavy/30 focus:outline-none focus:ring-2 focus:ring-electricTeal/20 transition-all ${errors.name ? 'border-overdueRed focus:ring-overdueRed/20' : 'border-deepNavy/5 focus:border-electricTeal'
+              }`}
           />
           {errors.name && <p className="text-[10px] text-overdueRed font-bold">{errors.name}</p>}
         </div>
@@ -284,9 +277,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"
-              className={`w-full pl-4 pr-12 py-3 bg-white border rounded-xl text-sm text-deepNavy placeholder-deepNavy/30 focus:outline-none focus:ring-2 focus:ring-electricTeal/20 transition-all ${
-                errors.amount ? 'border-overdueRed focus:ring-overdueRed/20' : 'border-deepNavy/5 focus:border-electricTeal'
-              }`}
+              className={`w-full pl-4 pr-12 py-3 bg-white border rounded-xl text-sm text-deepNavy placeholder-deepNavy/30 focus:outline-none focus:ring-2 focus:ring-electricTeal/20 transition-all ${errors.amount ? 'border-overdueRed focus:ring-overdueRed/20' : 'border-deepNavy/5 focus:border-electricTeal'
+                }`}
             />
             <span className="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-bold text-deepNavy/40 pointer-events-none">
               SEK
@@ -307,9 +299,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
                 <select
                   value={dueDay}
                   onChange={(e) => setDueDay(e.target.value)}
-                  className={`w-full pl-3 pr-8 py-3 bg-white border rounded-xl text-sm text-deepNavy focus:outline-none focus:ring-2 focus:ring-electricTeal/20 transition-all ${
-                    errors.dueDay ? 'border-overdueRed focus:ring-overdueRed/20' : 'border-deepNavy/5 focus:border-electricTeal'
-                  } appearance-none`}
+                  className={`w-full pl-3 pr-8 py-3 bg-white border rounded-xl text-sm text-deepNavy focus:outline-none focus:ring-2 focus:ring-electricTeal/20 transition-all ${errors.dueDay ? 'border-overdueRed focus:ring-overdueRed/20' : 'border-deepNavy/5 focus:border-electricTeal'
+                    } appearance-none`}
                 >
                   {Array.from({ length: 31 }, (_, idx) => (
                     <option key={idx + 1} value={idx + 1}>
@@ -326,9 +317,8 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className={`w-full px-3 py-2.5 bg-white border rounded-xl text-xs text-deepNavy focus:outline-none focus:ring-2 focus:ring-electricTeal/20 transition-all ${
-                  errors.dueDate ? 'border-overdueRed focus:ring-overdueRed/20' : 'border-deepNavy/5 focus:border-electricTeal'
-                }`}
+                className={`w-full px-3 py-2.5 bg-white border rounded-xl text-xs text-deepNavy focus:outline-none focus:ring-2 focus:ring-electricTeal/20 transition-all ${errors.dueDate ? 'border-overdueRed focus:ring-overdueRed/20' : 'border-deepNavy/5 focus:border-electricTeal'
+                  }`}
               />
             )}
             {isRecurring && errors.dueDay && (
@@ -380,22 +370,20 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
             <button
               type="button"
               onClick={() => setIsPaid(false)}
-              className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all ${
-                !isPaid 
-                  ? 'bg-white text-deepNavy shadow-sm' 
+              className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all ${!isPaid
+                  ? 'bg-white text-deepNavy shadow-sm'
                   : 'text-deepNavy/50 hover:text-deepNavy'
-              }`}
+                }`}
             >
               Kommande
             </button>
             <button
               type="button"
               onClick={() => setIsPaid(true)}
-              className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all ${
-                isPaid 
-                  ? 'bg-electricTeal text-white shadow-sm' 
+              className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all ${isPaid
+                  ? 'bg-electricTeal text-white shadow-sm'
                   : 'text-deepNavy/50 hover:text-deepNavy'
-              }`}
+                }`}
             >
               Betald
             </button>
@@ -432,19 +420,19 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
           <div className="bg-white rounded-[32px] p-5 w-full max-w-[320px] space-y-4 shadow-2xl border border-deepNavy/5 animate-scale-up">
             <div className="flex justify-between items-center pb-2 border-b border-deepNavy/5">
               <h3 className="font-extrabold text-deepNavy text-sm">Välj kategori</h3>
-              <button 
+              <button
                 onClick={() => setShowCategoryGrid(false)}
                 className="w-6 h-6 rounded-full bg-iceWhite flex items-center justify-center text-deepNavy/50 text-xs font-bold"
               >
                 ✕
               </button>
             </div>
-            
+
             <div className="grid grid-cols-3 gap-2">
               {CATEGORIES.map((cat) => {
                 const CatIcon = cat.icon;
                 const isSelected = selectedCategoryName === cat.name;
-                
+
                 return (
                   <button
                     key={cat.id}
@@ -453,13 +441,12 @@ export const AddBillView: React.FC<AddBillViewProps> = ({
                       setSelectedCategoryName(cat.name);
                       setShowCategoryGrid(false);
                     }}
-                    className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all ${
-                      isSelected 
-                        ? 'border-electricTeal bg-electricTeal/5' 
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all ${isSelected
+                        ? 'border-electricTeal bg-electricTeal/5'
                         : 'border-deepNavy/5 hover:bg-iceWhite'
-                    }`}
+                      }`}
                   >
-                    <div 
+                    <div
                       className="w-8 h-8 rounded-xl flex items-center justify-center text-white scale-95"
                       style={{ backgroundColor: cat.color }}
                     >

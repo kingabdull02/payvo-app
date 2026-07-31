@@ -386,6 +386,27 @@ export const dbAPI = {
       }
     },
 
+    async update(userId: string, id: string, updates: Partial<Omit<RecurringInvoice, 'id' | 'user_id'>>): Promise<RecurringInvoice | null> {
+      if (isSupabaseConfigured && supabase) {
+        const { data, error } = await supabase
+          .from('recurring_invoices')
+          .update(updates)
+          .eq('id', id)
+          .eq('user_id', userId)
+          .select()
+          .single();
+        if (error) return null;
+        return data;
+      } else {
+        const recurring = getLS<RecurringInvoice[]>(LS_KEYS.RECURRING, []);
+        const idx = recurring.findIndex(r => r.id === id && r.user_id === userId);
+        if (idx === -1) return null;
+        recurring[idx] = { ...recurring[idx], ...updates };
+        setLS(LS_KEYS.RECURRING, recurring);
+        return recurring[idx];
+      }
+    },
+
     async delete(userId: string, id: string): Promise<boolean> {
       if (isSupabaseConfigured && supabase) {
         const { error } = await supabase.from('recurring_invoices').delete().eq('id', id).eq('user_id', userId);
