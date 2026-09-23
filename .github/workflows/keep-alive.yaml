@@ -1,16 +1,31 @@
 name: Supabase Keep Alive
 
+permissions:
+  contents: write
+
 on:
   schedule:
-    - cron: '0 8 * * *'   # körs kl 08:00 UTC varje dag
-  workflow_dispatch:        # tillåter manuell körning också
+    - cron: '0 8 * * *'
+  workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Ping Supabase database
         run: |
           curl -s -X GET "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/profiles?select=id&limit=1" \
             -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}"
+
+      - name: Log run and commit (keeps repo + workflow active)
+        run: |
+          mkdir -p .github/keepalive
+          date -u +"%Y-%m-%d %H:%M UTC" > .github/keepalive/last-run.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive/last-run.txt
+          git commit -m "chore: keep-alive ping $(date -u +%F)" || echo "Inget att committa"
+          git push
